@@ -65,14 +65,20 @@ class SegmentationMask {
   /// The height of the mask.
   final int height;
 
+  final String basisPath;
+
   /// The confidence of the pixel in the mask being in the foreground.
   final List<double> confidences;
+
+  final List<String> basisItemList;
 
   /// Constructor to create an instance of [SegmentationMask].
   SegmentationMask({
     required this.width,
     required this.height,
+    required this.basisPath,
     required this.confidences,
+    required this.basisItemList,
   });
 
   /// Returns an instance of [SegmentationMask] from a given [json].
@@ -82,9 +88,16 @@ class SegmentationMask {
     for (final item in values) {
       confidences.add(double.parse(item.toString()));
     }
+    final listValues = json['basis_item_list'];
+    final List<String> basisItemList = [];
+    for (final item in listValues) {
+      basisItemList.add(item.toString());
+    }
     return SegmentationMask(
       width: json['width'] as int,
       height: json['height'] as int,
+      basisPath: json['basisPath'] as String,
+      basisItemList: basisItemList,
       confidences: confidences,
     );
   }
