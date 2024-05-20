@@ -1,3 +1,17 @@
+## 0.12.0
+
+* Update dependencies.
+* Update README.
+
+## 0.11.1
+
+* Update README.
+
+## 0.11.0
+
+* Update dependencies.
+* Update SDK constraint.
+
 ## 0.10.0
 
 * Fix: Update build.gradle, support AGP 8.
