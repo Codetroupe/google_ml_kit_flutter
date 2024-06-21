@@ -10,13 +10,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_mlkit_commons: ^0.6.0
+  google_mlkit_commons: ^0.7.1
 #    path: ../google_mlkit_commons
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.2
+  flutter_lints: ^4.0.0
 
 flutter:
   plugin:

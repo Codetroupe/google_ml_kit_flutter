@@ -4,7 +4,7 @@ import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 /// A detector that performs segmentation on a given [InputImage].
 class SubjectSegmenter {
   static const MethodChannel _channel =
-      MethodChannel('google_mlkit_subject_segmenter');
+  MethodChannel('google_mlkit_subject_segmenter');
 
   /// The mode for the [Segmenter].
   /// The default value is [SegmenterMode.stream].
@@ -17,7 +17,10 @@ class SubjectSegmenter {
   final bool enableRawSizeMask;
 
   /// Instance id.
-  final id = DateTime.now().microsecondsSinceEpoch.toString();
+  final id = DateTime
+      .now()
+      .microsecondsSinceEpoch
+      .toString();
 
   /// Constructor to create an instance of [SubjectSegmenter].
   SubjectSegmenter({
@@ -27,16 +30,30 @@ class SubjectSegmenter {
 
   /// Processes the given [InputImage] for segmentation.
   /// Returns the segmentation mask in the given image or nil if there was an error.
-  Future<SegmentationMask?> processImage(InputImage inputImage) async {
-    final result = await _channel
-        .invokeMethod('vision#startSubjectSegmenter', <String, dynamic>{
-      'id': id,
-      'imageData': inputImage.toJson(),
-      'isStream': mode == SegmenterMode.stream,
-      'enableRawSizeMask': enableRawSizeMask,
-    });
+  Future<SegmentationMask?> processImage(InputImage inputImage,
+      String imagePath, String savePath,
+      String imageHash) async {
+    try {
+      final result = await _channel.invokeMethod(
+        'vision#startSubjectSegmenter',
+        {
+          'id': id,
+          'imageData': inputImage.toJson(),
+          'savePath': savePath,
+          'imagePath': imagePath,
+          'imageHash': imageHash,
+          'isStream': mode == SegmenterMode.stream,
+          'enableRawSizeMask': enableRawSizeMask,
+        },
+      );
 
-    return result == null ? null : SegmentationMask.fromJson(result);
+      return result == null ? null : SegmentationMask.fromJson(result);
+    } catch (e) {
+      // 这里可以记录错误日志或采取其他恢复措施
+      // LoggerUtils.logE('Error during segmentation processing: $e');
+      print('Error during segmentation processing: $e');
+      return null; // 或者根据需要抛出自定义异常
+    }
   }
 
   /// Closes the detector and releases its resources.
@@ -68,7 +85,7 @@ class SegmentationMask {
   final String basisPath;
 
   /// The confidence of the pixel in the mask being in the foreground.
-  final List<double> confidences;
+  // final List<double> confidences;
 
   final List<String> basisItemList;
 
@@ -77,28 +94,39 @@ class SegmentationMask {
     required this.width,
     required this.height,
     required this.basisPath,
-    required this.confidences,
+    // required this.confidences,
     required this.basisItemList,
   });
 
   /// Returns an instance of [SegmentationMask] from a given [json].
   factory SegmentationMask.fromJson(Map<dynamic, dynamic> json) {
-    final values = json['confidences'];
-    final List<double> confidences = [];
-    for (final item in values) {
-      confidences.add(double.parse(item.toString()));
-    }
+    // final values = json['confidences'];
+    // final List<double> confidences = [];
+    // for (final item in values) {
+    //   confidences.add(double.parse(item.toString()));
+    // }
     final listValues = json['basis_item_list'];
     final List<String> basisItemList = [];
     for (final item in listValues) {
       basisItemList.add(item.toString());
     }
     return SegmentationMask(
-      width: json['width'] as int,
-      height: json['height'] as int,
-      basisPath: json['basisPath'] as String,
+      width: json['width'] as int? ?? 0,
+      height: json['height'] as int? ?? 0,
+      basisPath: json['basisPath'] as String ?? '',
       basisItemList: basisItemList,
-      confidences: confidences,
+      // confidences: confidences,
     );
+  }
+
+  /// Converts this [SegmentationMask] instance to a JSON [Map].
+  Map<String, dynamic> toJson() {
+    return {
+      'width': width,
+      'height': height,
+      'basisPath': basisPath,
+      // 'confidences': confidences.map((e) => e.toString()).toList(),
+      'basis_item_list': basisItemList,
+    };
   }
 }
